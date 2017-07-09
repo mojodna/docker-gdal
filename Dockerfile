@@ -53,9 +53,9 @@ RUN apt-get update \
     libkml-dev \
     liburiparser-dev \
   && apt-get clean \
-  && mkdir -p /tmp/gdal-dev \
-  && curl -sfL https://github.com/OSGeo/gdal/archive/2.2.tar.gz | tar zxf - -C /tmp/gdal-dev --strip-components=1 \
-  && cd /tmp/gdal-dev/gdal \
+  && mkdir -p /tmp/gdal \
+  && curl -sfL http://download.osgeo.org/gdal/2.2.1/gdal-2.2.1.tar.gz | tar zxf - -C /tmp/gdal --strip-components=1 \
+  && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
     --mandir=/usr/share/man \
