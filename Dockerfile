@@ -96,5 +96,5 @@ RUN apt-get update \
   && make -j $(nproc) \
   && make install \
   && cd / \
-  && rm -rf /tmp/gdal-dev \
+  && rm -rf /tmp/gdal \
   && rm -rf /var/lib/apt/lists/*
