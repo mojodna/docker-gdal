@@ -98,3 +98,5 @@ RUN apt-get update \
   && cd / \
   && rm -rf /tmp/gdal \
   && rm -rf /var/lib/apt/lists/*
+
+ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
