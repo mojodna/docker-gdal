@@ -3,8 +3,7 @@ MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# build dependencies + configure args from gdal-bin minus libjpeg
-# would be better as a PPA
+# might be better as a PPA
 RUN apt-get update \
   && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
@@ -15,46 +14,45 @@ RUN apt-get update \
     dh-autoreconf \
     autotools-dev \
     zlib1g-dev \
-    libnetcdf-dev \
-    netcdf-bin \
     libjasper-dev \
     libpng-dev \
     libgif-dev \
     libwebp-dev \
-    libhdf4-alt-dev \
     libhdf5-dev \
     libpcre3-dev \
-    libpq-dev \
     libxerces-c-dev \
-    unixodbc-dev \
-    doxygen \
     d-shlibs \
     libgeos-dev \
-    dh-python \
     python-all-dev \
     python-numpy \
-    libcurl4-gnutls-dev \
     libsqlite3-dev \
-    libogdi3.2-dev \
-    chrpath \
-    swig \
-    patch \
     libexpat1-dev \
     libproj-dev \
-    libdap-dev \
     libxml2-dev \
     libspatialite-dev \
-    libepsilon-dev \
-    libpoppler-private-dev \
     liblzma-dev \
     libopenjp2-7-dev \
     libarmadillo-dev \
-    libfreexl-dev \
-    libkml-dev \
     liburiparser-dev \
-  && apt-get clean \
+    pkg-config \
+    libgnutls-dev \
+  && mkdir /tmp/nghttp2 \
+  && curl -sfL https://github.com/nghttp2/nghttp2/releases/download/v1.26.0/nghttp2-1.26.0.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
+  && cd /tmp/nghttp2 \
+  && ./configure --enable-lib-only \
+  && make -j $(nproc) install \
+  && mkdir /tmp/curl \
+  && curl -sfL https://curl.haxx.se/download/curl-7.56.0.tar.gz | tar zxf - -C /tmp/curl --strip-components=1 \
+  && apt remove -y curl libcurl3-gnutls \
+  && apt autoremove -y \
+  && cd /tmp/curl \
+  && ./configure --prefix=/usr --disable-manual --disable-cookies --with-gnutls \
+  && make -j $(nproc) install \
+  && ldconfig \
+  && cd / \
+  && rm -rf /tmp/curl /tmp/nghttp2 \
   && mkdir -p /tmp/gdal \
-  && curl -sfL http://download.osgeo.org/gdal/2.2.1/gdal-2.2.1.tar.gz | tar zxf - -C /tmp/gdal --strip-components=1 \
+  && curl -sfL https://github.com/OSGeo/gdal/archive/5c1e079.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
@@ -70,33 +68,25 @@ RUN apt-get update \
     --with-webp \
     --with-jasper \
     --with-jpeg=internal \
-    --with-netcdf \
     --with-hdf5=/usr/lib/x86_64-linux-gnu/hdf5/serial \
     --with-xerces \
     --with-geos \
     --with-sqlite3 \
     --with-curl \
-    --with-pg \
-    --with-python \
-    --with-odbc \
-    --with-ogdi \
-    --with-dods-root=/usr \
     --with-static-proj4=yes \
     --with-spatialite=/usr \
     --with-cfitsio=no \
     --with-ecw=no \
     --with-mrsid=no \
-    --with-poppler=yes \
     --with-openjpeg=yes \
-    --with-freexl=yes \
-    --with-libkml=yes \
     --with-armadillo=yes \
     --with-liblzma=yes \
-    --with-epsilon=/usr \
   && make -j $(nproc) \
   && make install \
   && cd / \
   && rm -rf /tmp/gdal \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+ENV GDAL_HTTP_VERSION 2
