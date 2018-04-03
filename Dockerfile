@@ -54,7 +54,7 @@ RUN apt-get update \
     liburiparser-dev \
   && apt-get clean \
   && mkdir -p /tmp/gdal \
-  && curl -sfL http://download.osgeo.org/gdal/2.2.2/gdal-2.2.2.tar.gz | tar zxf - -C /tmp/gdal --strip-components=1 \
+  && curl -sfL http://download.osgeo.org/gdal/2.2.4/gdal-2.2.4.tar.gz | tar zxf - -C /tmp/gdal --strip-components=1 \
   && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
