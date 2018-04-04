@@ -52,7 +52,7 @@ RUN apt-get update \
   && cd / \
   && rm -rf /tmp/curl /tmp/nghttp2 \
   && mkdir -p /tmp/gdal \
-  && curl -sfL https://github.com/OSGeo/gdal/archive/5c1e079.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
+  && curl -sfL https://github.com/OSGeo/gdal/archive/e8b9b21.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
