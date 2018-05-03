@@ -1,6 +1,10 @@
 FROM ubuntu:16.04
 MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 
+ARG CURL_VERSION=7.59.0
+ARG GDAL_VERSION=v2.3.0beta1
+ARG NGHTTP2_VERSION=v1.31.1
+
 ENV DEBIAN_FRONTEND noninteractive
 
 # might be better as a PPA
@@ -37,12 +41,12 @@ RUN apt-get update \
     pkg-config \
     libgnutls-dev \
   && mkdir /tmp/nghttp2 \
-  && curl -sfL https://github.com/nghttp2/nghttp2/releases/download/v1.31.1/nghttp2-1.31.1.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
+  && curl -sfL https://github.com/nghttp2/nghttp2/archive/${NGHTTP2_VERSION}.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
   && cd /tmp/nghttp2 \
   && ./configure --enable-lib-only \
   && make -j $(nproc) install \
   && mkdir /tmp/curl \
-  && curl -sfL https://curl.haxx.se/download/curl-7.59.0.tar.gz | tar zxf - -C /tmp/curl --strip-components=1 \
+  && curl -sfL https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz | tar zxf - -C /tmp/curl --strip-components=1 \
   && apt remove -y curl libcurl3-gnutls \
   && apt autoremove -y \
   && cd /tmp/curl \
@@ -52,7 +56,7 @@ RUN apt-get update \
   && cd / \
   && rm -rf /tmp/curl /tmp/nghttp2 \
   && mkdir -p /tmp/gdal \
-  && curl -sfL https://github.com/OSGeo/gdal/archive/v2.3.0beta1.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
+  && curl -sfL https://github.com/OSGeo/gdal/archive/${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
@@ -82,7 +86,7 @@ RUN apt-get update \
     --with-armadillo=yes \
     --with-liblzma=yes \
   && make -j $(nproc) \
-  && make install \
+  && make -j $(nproc) install \
   && cd / \
   && rm -rf /tmp/gdal \
   && apt-get clean \
