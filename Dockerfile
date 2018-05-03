@@ -88,7 +88,7 @@ RUN apt-get update \
     --with-geos \
     --with-sqlite3 \
     --with-curl=/opt/curl/bin/curl-config \
-    --with-static-proj4=yes \
+    --with-proj=yes \
     --with-spatialite=/usr \
     --with-cfitsio=no \
     --with-ecw=no \
