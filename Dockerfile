@@ -42,6 +42,8 @@ RUN apt-get update \
     liburiparser-dev \
     pkg-config \
     libgnutls-dev \
+    cmake \
+    nasm \
   && mkdir /tmp/nghttp2 \
   && curl -sfL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
   && cd /tmp/nghttp2 \
@@ -56,8 +58,14 @@ RUN apt-get update \
   && curl -sfL https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
   && cd /tmp/zstd \
   && make -j $(nproc) install \
+  && mkdir -p /tmp/libjpeg-turbo \
+  && curl -sfL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz | tar zxf - -C /tmp/libjpeg-turbo --strip-components=1 \
+  && cd /tmp/libjpeg-turbo \
+  && cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr . \
+  && make -j $(nproc) install \
   && cd / \
-  && rm -rf /tmp/curl /tmp/nghttp2 /tmp/zstd \
+  && rm -rf /tmp/{curl,libjpeg-turbo,nghttp2,zstd} \
+  && ldconfig \
   && mkdir -p /tmp/gdal \
   && curl -sfL https://github.com/OSGeo/gdal/archive/v${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
@@ -74,7 +82,7 @@ RUN apt-get update \
     --with-geotiff=internal \
     --with-webp \
     --with-jasper \
-    --with-jpeg=internal \
+    --with-jpeg=/usr \
     --with-hdf5=/usr/lib/x86_64-linux-gnu/hdf5/serial \
     --with-xerces \
     --with-geos \
