@@ -4,6 +4,7 @@ MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 ARG CURL_VERSION=7.59.0
 ARG GDAL_VERSION=v2.3.0beta1
 ARG NGHTTP2_VERSION=v1.31.1
+ARG ZSTD_VERSION=v1.3.4
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -52,9 +53,13 @@ RUN apt-get update \
   && cd /tmp/curl \
   && ./configure --prefix=/usr --disable-manual --disable-cookies --with-gnutls \
   && make -j $(nproc) install \
+  && mkdir /tmp/zstd \
+  && curl -sfL https://github.com/facebook/zstd/archive/${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
+  && cd /tmp/zstd \
+  && make -j $(nproc) install \
   && ldconfig \
   && cd / \
-  && rm -rf /tmp/curl /tmp/nghttp2 \
+  && rm -rf /tmp/curl /tmp/nghttp2 /tmp/zstd \
   && mkdir -p /tmp/gdal \
   && curl -sfL https://github.com/OSGeo/gdal/archive/${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
@@ -85,6 +90,7 @@ RUN apt-get update \
     --with-openjpeg=yes \
     --with-armadillo=yes \
     --with-liblzma=yes \
+    --with-zstd \
   && make -j $(nproc) \
   && make -j $(nproc) install \
   && cd / \
