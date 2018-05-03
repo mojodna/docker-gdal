@@ -49,16 +49,13 @@ RUN apt-get update \
   && make -j $(nproc) install \
   && mkdir /tmp/curl \
   && curl -sfL https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz | tar zxf - -C /tmp/curl --strip-components=1 \
-  && apt remove -y curl libcurl3-gnutls \
-  && apt autoremove -y \
   && cd /tmp/curl \
-  && ./configure --prefix=/usr --disable-manual --disable-cookies --with-gnutls \
+  && ./configure --prefix=/opt/curl --disable-manual --disable-cookies --with-gnutls \
   && make -j $(nproc) install \
   && mkdir /tmp/zstd \
   && curl -sfL https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
   && cd /tmp/zstd \
   && make -j $(nproc) install \
-  && ldconfig \
   && cd / \
   && rm -rf /tmp/curl /tmp/nghttp2 /tmp/zstd \
   && mkdir -p /tmp/gdal \
@@ -82,7 +79,7 @@ RUN apt-get update \
     --with-xerces \
     --with-geos \
     --with-sqlite3 \
-    --with-curl \
+    --with-curl=/opt/curl/bin/curl-config \
     --with-static-proj4=yes \
     --with-spatialite=/usr \
     --with-cfitsio=no \
