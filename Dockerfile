@@ -1,10 +1,15 @@
 FROM ubuntu:16.04
 MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 
+ARG CURL_VERSION=7.59.0
+ARG GDAL_VERSION=2.3.0
+ARG LIBJPEG_TURBO_VERSION=1.5.90
+ARG NGHTTP2_VERSION=1.31.1
+ARG ZSTD_VERSION=1.3.4
+
 ENV DEBIAN_FRONTEND noninteractive
 
-# build dependencies + configure args from gdal-bin minus libjpeg
-# would be better as a PPA
+# might be better as a PPA
 RUN apt-get update \
   && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
@@ -15,46 +20,54 @@ RUN apt-get update \
     dh-autoreconf \
     autotools-dev \
     zlib1g-dev \
-    libnetcdf-dev \
-    netcdf-bin \
     libjasper-dev \
     libpng-dev \
     libgif-dev \
     libwebp-dev \
-    libhdf4-alt-dev \
     libhdf5-dev \
     libpcre3-dev \
-    libpq-dev \
     libxerces-c-dev \
-    unixodbc-dev \
-    doxygen \
     d-shlibs \
     libgeos-dev \
-    dh-python \
     python-all-dev \
     python-numpy \
-    libcurl4-gnutls-dev \
     libsqlite3-dev \
-    libogdi3.2-dev \
-    chrpath \
-    swig \
-    patch \
     libexpat1-dev \
     libproj-dev \
-    libdap-dev \
     libxml2-dev \
     libspatialite-dev \
-    libepsilon-dev \
-    libpoppler-private-dev \
     liblzma-dev \
     libopenjp2-7-dev \
     libarmadillo-dev \
-    libfreexl-dev \
-    libkml-dev \
     liburiparser-dev \
-  && apt-get clean \
+    pkg-config \
+    libgnutls-dev \
+    cmake \
+    nasm \
+  && mkdir /tmp/nghttp2 \
+  && curl -sfL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
+  && cd /tmp/nghttp2 \
+  && ./configure --enable-lib-only \
+  && make -j $(nproc) install \
+  && mkdir /tmp/curl \
+  && curl -sfL https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz | tar zxf - -C /tmp/curl --strip-components=1 \
+  && cd /tmp/curl \
+  && ./configure --prefix=/opt/curl --disable-manual --disable-cookies --with-gnutls \
+  && make -j $(nproc) install \
+  && mkdir /tmp/zstd \
+  && curl -sfL https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
+  && cd /tmp/zstd \
+  && make -j $(nproc) install \
+  && mkdir -p /tmp/libjpeg-turbo \
+  && curl -sfL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz | tar zxf - -C /tmp/libjpeg-turbo --strip-components=1 \
+  && cd /tmp/libjpeg-turbo \
+  && cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr . \
+  && make -j $(nproc) install \
+  && cd / \
+  && rm -rf /tmp/{curl,libjpeg-turbo,nghttp2,zstd} \
+  && ldconfig \
   && mkdir -p /tmp/gdal \
-  && curl -sfL http://download.osgeo.org/gdal/2.2.4/gdal-2.2.4.tar.gz | tar zxf - -C /tmp/gdal --strip-components=1 \
+  && curl -sfL https://github.com/OSGeo/gdal/archive/v${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
@@ -69,34 +82,27 @@ RUN apt-get update \
     --with-geotiff=internal \
     --with-webp \
     --with-jasper \
-    --with-jpeg=internal \
-    --with-netcdf \
+    --with-jpeg=/usr \
     --with-hdf5=/usr/lib/x86_64-linux-gnu/hdf5/serial \
     --with-xerces \
     --with-geos \
     --with-sqlite3 \
-    --with-curl \
-    --with-pg \
-    --with-python \
-    --with-odbc \
-    --with-ogdi \
-    --with-dods-root=/usr \
-    --with-static-proj4=yes \
+    --with-curl=/opt/curl/bin/curl-config \
+    --with-proj=yes \
     --with-spatialite=/usr \
     --with-cfitsio=no \
     --with-ecw=no \
     --with-mrsid=no \
-    --with-poppler=yes \
     --with-openjpeg=yes \
-    --with-freexl=yes \
-    --with-libkml=yes \
     --with-armadillo=yes \
     --with-liblzma=yes \
-    --with-epsilon=/usr \
+    --with-zstd \
   && make -j $(nproc) \
-  && make install \
+  && make -j $(nproc) install \
   && cd / \
   && rm -rf /tmp/gdal \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+ENV GDAL_HTTP_VERSION 2
