@@ -64,7 +64,7 @@ RUN apt-get update \
   && cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr . \
   && make -j $(nproc) install \
   && cd / \
-  && rm -rf /tmp/{curl,libjpeg-turbo,nghttp2,zstd} \
+  && rm -rf /tmp/curl /tmp/libjpeg-turbo /tmp/nghttp2 /tmp/zstd \
   && ldconfig \
   && mkdir -p /tmp/gdal \
   && curl -sfL https://github.com/OSGeo/gdal/archive/v${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
