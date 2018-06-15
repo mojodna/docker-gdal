@@ -5,6 +5,7 @@ ARG CURL_VERSION=7.59.0
 ARG GDAL_VERSION=2.3.0
 ARG LIBJPEG_TURBO_VERSION=1.5.90
 ARG NGHTTP2_VERSION=1.31.1
+ARG OPENJPEG_VERSION=2.3.0
 ARG ZSTD_VERSION=1.3.4
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -37,7 +38,6 @@ RUN apt-get update \
     libxml2-dev \
     libspatialite-dev \
     liblzma-dev \
-    libopenjp2-7-dev \
     libarmadillo-dev \
     liburiparser-dev \
     pkg-config \
@@ -65,6 +65,7 @@ RUN apt-get update \
   && make -j $(nproc) install \
   && cd / \
   && rm -rf /tmp/curl /tmp/libjpeg-turbo /tmp/nghttp2 /tmp/zstd \
+  && curl -sfL https://github.com/uclouvain/openjpeg/releases/download/v${OPENJPEG_VERSION}/openjpeg-v${OPENJPEG_VERSION}-linux-x86_64.tar.gz | tar zxf - -C /usr/local --strip-components=1 \
   && ldconfig \
   && mkdir -p /tmp/gdal \
   && curl -sfL https://github.com/OSGeo/gdal/archive/v${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
