@@ -106,4 +106,5 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+ENV GDAL_DATA=/usr/share/gdal
 ENV GDAL_HTTP_VERSION 2
