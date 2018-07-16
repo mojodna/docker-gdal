@@ -2,7 +2,7 @@ FROM ubuntu:16.04
 MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 
 ARG CURL_VERSION=7.59.0
-ARG GDAL_VERSION=2.3.1
+ARG GDAL_VERSION=release/2.3
 ARG LIBJPEG_TURBO_VERSION=1.5.90
 ARG NGHTTP2_VERSION=1.32.0
 ARG OPENJPEG_VERSION=2.3.0
@@ -68,7 +68,7 @@ RUN apt-get update \
   && curl -sfL https://github.com/uclouvain/openjpeg/releases/download/v${OPENJPEG_VERSION}/openjpeg-v${OPENJPEG_VERSION}-linux-x86_64.tar.gz | tar zxf - -C /usr/local --strip-components=1 \
   && ldconfig \
   && mkdir -p /tmp/gdal \
-  && curl -sfL https://github.com/OSGeo/gdal/archive/v${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
+  && curl -sfL https://github.com/OSGeo/gdal/archive/${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=2 \
   && cd /tmp/gdal \
   && ./configure \
     --prefix=/usr \
