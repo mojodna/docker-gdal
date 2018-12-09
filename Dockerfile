@@ -21,6 +21,7 @@ RUN apt-get update \
     dh-autoreconf \
     autotools-dev \
     zlib1g-dev \
+    libcrypto++-dev \
     libjasper-dev \
     libpng-dev \
     libgif-dev \
@@ -98,6 +99,7 @@ RUN apt-get update \
     --with-armadillo=yes \
     --with-liblzma=yes \
     --with-zstd \
+    --with-cryptopp=yes \
   && make -j $(nproc) \
   && make -j $(nproc) install \
   && cd / \
